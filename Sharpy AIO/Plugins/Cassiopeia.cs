@@ -55,6 +55,7 @@ namespace Sharpy_AIO.Plugins
             combo.AddItem(new MenuItem("CC", "Use R Min Hit").SetValue(new Slider(1, 1, 5)));
             combo.AddItem(new MenuItem("CF", "Use R Min Facing").SetValue(new Slider(1, 1, 5)));
             combo.AddItem(new MenuItem("CA", "Disable AutoAttack").SetValue(true));
+            combo.AddItem(new MenuItem("CK", "Use R Semi-automatic").SetValue(new KeyBind('R', KeyBindType.Press)));
             Menu.AddSubMenu(combo);
             
             // 궁 + 플래쉬 메뉴
@@ -241,6 +242,28 @@ namespace Sharpy_AIO.Plugins
         {
             if (Orbwalking.CanMove(20))
             {
+                if (Menu.Item("CK").GetValue<KeyBind>().Active)
+                {
+                    var starget = TargetSelector.GetSelectedTarget();
+                    if (R.IsReadyPerfectly())
+                    {
+                        if (starget != null && starget.Position.Distance(Player.Position) <= R.Range)
+                        {
+                            if (!starget.IsZombie)
+                            {
+                                R.Cast(starget, false, true);
+                            }
+                        }
+                        else
+                        {
+                            var target = TargetSelector.GetTarget(R.Range, R.DamageType);
+                            if (target != null)
+                            {
+                                R.Cast(target, false, true);
+                            }
+                        }
+                    }
+                }
                 switch (Orbwalker.ActiveMode)
                 {
                     case Orbwalking.OrbwalkingMode.Flee:

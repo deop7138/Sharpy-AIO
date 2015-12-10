@@ -43,7 +43,7 @@ namespace Sharpy_AIO.Plugins
             combo.AddItem(new MenuItem("CQ", "Use Q").SetValue(true));
             combo.AddItem(new MenuItem("CW", "Use W").SetValue(true));
             combo.AddItem(new MenuItem("CE", "Use E").SetValue(true));
-            combo.AddItem(new MenuItem("CR", "Use R").SetValue(true));
+            combo.AddItem(new MenuItem("CR", "Use R (No Damage)").SetValue(true));
             combo.AddItem(new MenuItem("CM", "Block R If Mana").SetValue(new Slider(60,0,100)));
             combo.AddItem(new MenuItem("CRR", "Cast R Min Distance To Enemy").SetValue(new Slider(500, 0, 500)));
             Menu.AddSubMenu(combo);

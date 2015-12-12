@@ -527,7 +527,7 @@ namespace Sharpy_AIO.Plugins
 
             if (Menu.Item("ME").GetValue<KeyBind>().Active)
             {
-                if (!(Player.IsRecalling()))
+                if (!Player.HasBuff("Recall"))
                 {
                     if (E.IsReadyPerfectly())
                     {
@@ -541,7 +541,7 @@ namespace Sharpy_AIO.Plugins
 
             if (Menu.Item("TE").GetValue<bool>())
             {
-                if (!(Player.IsRecalling()))
+                if (!Player.HasBuff("Recall"))
                 {
                     if (Tibbers != null)
                     {

@@ -156,6 +156,13 @@ namespace Sharpy_AIO.Plugins
             killsteal.AddItem(new MenuItem("KI", "Use Ignite").SetValue(true));
             misc.AddSubMenu(killsteal);
 
+            // 아이템 메뉴
+            var item = new Menu("Item Setting", "Item Setting");
+            item.AddItem(new MenuItem("IH", "Use Hydra").SetValue(true));
+            item.AddItem(new MenuItem("IY", "Use Youmuu").SetValue(true));
+            item.AddItem(new MenuItem("IB", "Use BOTRK").SetValue(true));
+            misc.AddSubMenu(item);
+
             // 드로잉 메뉴
             var drawing = new Menu("Drawing", "Drawing");
             drawing.AddItem(new MenuItem("DQ", "Draw Q Range").SetValue(new Circle(true, Color.Green)));
@@ -572,16 +579,36 @@ namespace Sharpy_AIO.Plugins
 
                             if (Menu.Item("HI").GetValue<bool>())
                             {
-                                var btarget = TargetSelector.GetTarget(550f, TargetSelector.DamageType.Physical);
-                                if (btarget != null)
+                                if (starget != null && Player.Position.Distance(starget.Position) <= 550f)
                                 {
-                                    castBOTRK(btarget);
+                                    if (!starget.IsZombie)
+                                    {
+                                        castBOTRK(starget);
+                                    }
+                                }
+                                else
+                                {
+                                    var target = TargetSelector.GetTarget(550f, TargetSelector.DamageType.Physical);
+                                    if (target != null)
+                                    {
+                                        castBOTRK(target);
+                                    }
                                 }
 
-                                var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
-                                if (target != null)
+                                if (starget != null && Player.Position.Distance(starget.Position) <= 350f)
                                 {
-                                    castHydra();
+                                    if (!starget.IsZombie)
+                                    {
+                                        castHydra();
+                                    }
+                                }
+                                else
+                                {
+                                    var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
+                                    if (target != null)
+                                    {
+                                        castHydra();
+                                    }
                                 }
                             }
                         }
@@ -594,11 +621,11 @@ namespace Sharpy_AIO.Plugins
                                 {
                                     if (Menu.Item("LCQ").GetValue<bool>())
                                     {
-                                        var target = Q.GetLineFarmLocation(MinionManager.GetMinions(Q.Range));
-                                        if (target.MinionsHit >= 1)
+                                        var target = MinionManager.GetMinions(Q.Range).FirstOrDefault(x => x.IsValidTarget(Q.Range));
+                                        if (target != null)
                                         {
                                             Q.UpdateSourcePosition(Player.Position);
-                                            Q.Cast(target.Position);
+                                            Q.Cast(target);
                                         }
                                     }
 
@@ -642,7 +669,7 @@ namespace Sharpy_AIO.Plugins
 
                             if (Menu.Item("LCI").GetValue<bool>())
                             {
-                                var target = MinionManager.GetMinions(400f, MinionTypes.All, MinionTeam.Enemy).FirstOrDefault(x => x.IsValidTarget(400f));
+                                var target = MinionManager.GetMinions(400f).FirstOrDefault(x => x.IsValidTarget(400f));
                                 if (target != null)
                                 {
                                     castHydra();
@@ -1112,34 +1139,43 @@ namespace Sharpy_AIO.Plugins
 
         private void castBOTRK(Obj_AI_Hero target)
         {
-            var bilge = ItemData.Bilgewater_Cutlass.GetItem();
-            var botrk = ItemData.Blade_of_the_Ruined_King.GetItem();
-
-            if (bilge.IsReady() || botrk.IsReady())
+            if (Menu.Item("IB").GetValue<bool>())
             {
-                bilge.Cast(target);
-                botrk.Cast(target);
+                var bilge = ItemData.Bilgewater_Cutlass.GetItem();
+                var botrk = ItemData.Blade_of_the_Ruined_King.GetItem();
+
+                if (bilge.IsReady() || botrk.IsReady())
+                {
+                    bilge.Cast(target);
+                    botrk.Cast(target);
+                }
             }
         }
 
         private void castHydra()
         {
-            var tiamet = ItemData.Tiamat_Melee_Only.GetItem();
-            var hydra = ItemData.Ravenous_Hydra_Melee_Only.GetItem();
-
-            if (tiamet.IsReady() || hydra.IsReady())
+            if (Menu.Item("IH").GetValue<bool>())
             {
-                tiamet.Cast();
-                hydra.Cast();
+                var tiamet = ItemData.Tiamat_Melee_Only.GetItem();
+                var hydra = ItemData.Ravenous_Hydra_Melee_Only.GetItem();
+
+                if (tiamet.IsReady() || hydra.IsReady())
+                {
+                    tiamet.Cast();
+                    hydra.Cast();
+                }
             }
         }
 
         private void castYoumuu()
         {
-            var yomu = ItemData.Youmuus_Ghostblade.GetItem();
-            if (yomu.IsReady())
+            if (Menu.Item("IY").GetValue<bool>())
             {
-                yomu.Cast();
+                var yomu = ItemData.Youmuus_Ghostblade.GetItem();
+                if (yomu.IsReady())
+                {
+                    yomu.Cast();
+                }
             }
         }
 

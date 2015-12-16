@@ -24,7 +24,7 @@ namespace Sharpy_AIO.Plugins
 
             Q = new Spell(SpellSlot.Q, 650f, TargetSelector.DamageType.Magical);
             W = new Spell(SpellSlot.W, 350f, TargetSelector.DamageType.Magical);
-            E = new Spell(SpellSlot.E, 400f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.VeryHigh };
+            E = new Spell(SpellSlot.E, 660f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.High };
             R = new Spell(SpellSlot.R, 500f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.High };
 
             Q.SetTargetted(.25f, 1400f);

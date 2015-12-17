@@ -69,7 +69,6 @@
     <Compile Include="Plugins\DrMundo.cs" />
     <Compile Include="Plugins\Hecarim.cs" />
     <Compile Include="Plugins\Kassadin.cs" />
-    <Compile Include="Plugins\Renekton.cs" />
     <Compile Include="Plugins\Zed.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

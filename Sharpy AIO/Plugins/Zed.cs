@@ -1092,13 +1092,10 @@ namespace Sharpy_AIO.Plugins
                             var target = ObjectManager.Get<Obj_AI_Hero>().FirstOrDefault(x => x.IsKillableAndValidTarget(Q.GetDamage(x), Q.DamageType, Q.Range + Player.Position.Distance(shadow.Position)));
                             if (target != null)
                             {
-                                if (!target.IsDead)
+                                if (shadow.Position.Distance(target.Position) <= Q.Range)
                                 {
-                                    if (shadow.Position.Distance(target.Position) <= Q.Range)
-                                    {
-                                        Q.UpdateSourcePosition(shadow.Position, shadow.Position);
-                                        Q.Cast(target);
-                                    }
+                                    Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                    Q.Cast(target);
                                 }
                             }
                         }
@@ -1111,12 +1108,9 @@ namespace Sharpy_AIO.Plugins
                             var target = ObjectManager.Get<Obj_AI_Hero>().FirstOrDefault(x => x.IsKillableAndValidTarget(E.GetDamage(x), E.DamageType, Player.Position.Distance(shadow.Position) + E.Range));
                             if (target != null)
                             {
-                                if (!target.IsDead)
+                                if (shadow.Position.Distance(target.Position) <= E.Range)
                                 {
-                                    if (shadow.Position.Distance(target.Position) <= E.Range)
-                                    {
-                                        E.Cast();
-                                    }
+                                    E.Cast();
                                 }
                             }
                         }

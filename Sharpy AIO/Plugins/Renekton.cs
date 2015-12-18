@@ -53,7 +53,8 @@ namespace Sharpy_AIO.Plugins
             harass.AddItem(new MenuItem("HQ", "Use Q").SetValue(true));
             harass.AddItem(new MenuItem("HW", "Use W").SetValue(true));
             harass.AddItem(new MenuItem("HE1", "Use E").SetValue(true));
-            harass.AddItem(new MenuItem("HE2", "Use E2 (On = Back, Off = Enemy)").SetValue(new KeyBind('Y',KeyBindType.Toggle)));
+            harass.AddItem(new MenuItem("HE3", "Use E2").SetValue(true));
+            harass.AddItem(new MenuItem("HE2", "E2 Mode (On = Back, Off = Enemy)").SetValue(new KeyBind('Y',KeyBindType.Toggle)));
             Menu.AddSubMenu(harass);
 
             // 이동 메뉴
@@ -321,43 +322,46 @@ namespace Sharpy_AIO.Plugins
                                 }
                             }
 
-                             if (Menu.Item("HE2").GetValue<KeyBind>().Active)
-                             {
-                                 if (E.IsReadyPerfectly() && Player.HasBuff("renektonsliceanddicedelay"))
-                                 {
-                                     if (!Q.IsReadyPerfectly() && !W.IsReadyPerfectly())
-                                     {
-                                        var tower = ObjectManager.Get<Obj_Turret>().FirstOrDefault(x => x.IsAlly);
-                                        if (tower.Position.Distance(blue) < tower.Position.Distance(red))
-                                        {
-                                            E.Cast(blue);
-                                        }
-                                        else
-                                        {
-                                            E.Cast(red);
-                                        }
-                                    }
-                                 }
-                             }
-                             else
+                            if (Menu.Item("HE3").GetValue<bool>())
                             {
-                                if (E.IsReadyPerfectly() && Player.HasBuff("renektonsliceanddicedelay"))
+                                if (Menu.Item("HE2").GetValue<KeyBind>().Active)
                                 {
-                                    if (!Q.IsReadyPerfectly() && !W.IsReadyPerfectly())
+                                    if (E.IsReadyPerfectly() && Player.HasBuff("renektonsliceanddicedelay"))
                                     {
-                                        if (starget != null && Player.Position.Distance(starget.Position) <= E.Range)
+                                        if (!Q.IsReadyPerfectly() && !W.IsReadyPerfectly())
                                         {
-                                            if (!starget.IsZombie)
+                                            var tower = ObjectManager.Get<Obj_Turret>().FirstOrDefault(x => x.IsAlly);
+                                            if (tower.Position.Distance(blue) < tower.Position.Distance(red))
                                             {
-                                                E.Cast(starget);
+                                                E.Cast(blue);
+                                            }
+                                            else
+                                            {
+                                                E.Cast(red);
                                             }
                                         }
-                                        else
+                                    }
+                                }
+                                else
+                                {
+                                    if (E.IsReadyPerfectly() && Player.HasBuff("renektonsliceanddicedelay"))
+                                    {
+                                        if (!Q.IsReadyPerfectly() && !W.IsReadyPerfectly())
                                         {
-                                            var target = TargetSelector.GetTarget(E.Range, E.DamageType);
-                                            if (target != null)
+                                            if (starget != null && Player.Position.Distance(starget.Position) <= E.Range)
                                             {
-                                                E.Cast(target);
+                                                if (!starget.IsZombie)
+                                                {
+                                                    E.Cast(starget);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                if (target != null)
+                                                {
+                                                    E.Cast(target);
+                                                }
                                             }
                                         }
                                     }

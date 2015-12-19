@@ -29,12 +29,12 @@ namespace Sharpy_AIO.Plugins
         {
             Game.PrintChat("Sharpy AIO :: Cassiopeia Loaded :)");
 
-            Q = new Spell(SpellSlot.Q, 850f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.VeryHigh };
+            Q = new Spell(SpellSlot.Q, 850f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.High };
             W = new Spell(SpellSlot.W, 850f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.VeryHigh };
             E = new Spell(SpellSlot.E, 700f, TargetSelector.DamageType.Magical);
             R = new Spell(SpellSlot.R, 825f, TargetSelector.DamageType.Magical) { MinHitChance = HitChance.High };
 
-            Q.SetSkillshot(1f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(.75f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(.25f, 100f, 2450f, false, SkillshotType.SkillshotCircle);
             E.SetTargetted(0f, float.MaxValue);
             R.SetSkillshot(.5f, (float)(80f + Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);

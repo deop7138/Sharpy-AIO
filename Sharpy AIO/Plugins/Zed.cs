@@ -149,7 +149,7 @@ namespace Sharpy_AIO.Plugins
 
             // 킬스틸 메뉴
             var killsteal = new Menu("Killsteal Setting","Killsteal Setting");
-            killsteal.AddItem(new MenuItem("K0", "If Only On Shadow"));
+            killsteal.AddItem(new MenuItem("K0", "Use Only On Shadow"));
             killsteal.AddItem(new MenuItem("KQ", "Use Q").SetValue(true));
             killsteal.AddItem(new MenuItem("KE", "Use E").SetValue(true));
             killsteal.AddItem(new MenuItem("KI", "Use Ignite").SetValue(true));
@@ -376,7 +376,7 @@ namespace Sharpy_AIO.Plugins
                                         var target = MinionManager.GetMinions(Q.Range).FirstOrDefault(x => x.IsKillableAndValidTarget(Q.GetDamage(x), Q.DamageType, Q.Range));
                                         if (target != null)
                                         {
-                                            if (Player.Position.Distance(target.Position) > 125f)
+                                            if (Player.Position.Distance(target.Position) > E.Range)
                                             {
                                                 Q.UpdateSourcePosition(Player.Position, Player.Position);
                                                 Q.Cast(target);
@@ -412,7 +412,7 @@ namespace Sharpy_AIO.Plugins
                                 {
                                     if (Player.Mana >= WEQMana)
                                     {
-                                        if (starget != null && Player.Position.Distance(starget.Position) <= W.Range)
+                                        if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
                                         {
                                             if (!starget.IsZombie)
                                             {
@@ -437,7 +437,7 @@ namespace Sharpy_AIO.Plugins
                                 {
                                     if (shadow != null)
                                     {
-                                        if (starget != null && Player.Position.Distance(starget.Position) <= E.Range || starget != null && shadow.Position.Distance(starget.Position) <= E.Range)
+                                        if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(E.Range,true,shadow.Position) && !starget.IsDead)
                                         {
                                             if (!starget.IsZombie)
                                             {
@@ -446,10 +446,15 @@ namespace Sharpy_AIO.Plugins
                                         }
                                         else
                                         {
-                                            var target = TargetSelector.GetTarget(E.Range + Player.Position.Distance(shadow.Position), E.DamageType);
-                                            if (target != null)
+                                            var shadowtarget = TargetSelector.GetTarget(E.Range, E.DamageType, true, null, shadow.Position);
+                                            if (shadowtarget != null)
                                             {
-                                                if (Player.Position.Distance(target.Position) <= E.Range || shadow.Position.Distance(target.Position) <= E.Range)
+                                                E.Cast();
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                if (target != null)
                                                 {
                                                     E.Cast();
                                                 }
@@ -460,7 +465,7 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!W.IsReadyPerfectly() || Player.Mana < WEQMana || !Menu.Item("HW1").GetValue<KeyBind>().Active)
                                         {
-                                            if (starget != null && Player.Position.Distance(starget.Position) <= E.Range)
+                                            if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
                                             {
                                                 if (!starget.IsZombie)
                                                 {
@@ -486,18 +491,18 @@ namespace Sharpy_AIO.Plugins
                                 {
                                     if (shadow != null)
                                     {
-                                        if (starget != null && Player.Position.Distance(starget.Position) <= Q.Range || starget != null && shadow.Position.Distance(starget.Position) <= Q.Range)
+                                        if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(Q.Range, true, shadow.Position) && !starget.IsDead)
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                if (shadow.Position.Distance(starget.Position) <= Q.Range)
+                                                if (starget.IsValidTarget(Q.Range,true,shadow.Position))
                                                 {
                                                     Q.UpdateSourcePosition(shadow.Position, shadow.Position);
                                                     Q.Cast(starget);
                                                 }
                                                 else
                                                 {
-                                                    if (Player.Position.Distance(starget.Position) <= Q.Range)
+                                                    if (starget.IsValidTarget(Q.Range))
                                                     {
                                                         Q.UpdateSourcePosition(Player.Position, Player.Position);
                                                         Q.Cast(starget);
@@ -507,21 +512,19 @@ namespace Sharpy_AIO.Plugins
                                         }
                                         else
                                         {
-                                            var target = TargetSelector.GetTarget(Q.Range + Player.Position.Distance(shadow.Position), Q.DamageType);
-                                            if (target != null)
+                                            var shadowtarget = TargetSelector.GetTarget(Q.Range, Q.DamageType, true, null, shadow.Position);
+                                            if (shadowtarget != null)
                                             {
-                                                if (shadow.Position.Distance(target.Position) <= Q.Range)
+                                                Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                                Q.Cast(shadowtarget);
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
+                                                if (target != null)
                                                 {
-                                                    Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                                    Q.UpdateSourcePosition(Player.Position, Player.Position);
                                                     Q.Cast(target);
-                                                }
-                                                else
-                                                {
-                                                    if (Player.Position.Distance(target.Position) <= Q.Range)
-                                                    {
-                                                        Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                        Q.Cast(target);
-                                                    }
                                                 }
                                             }
                                         }
@@ -530,7 +533,7 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!W.IsReadyPerfectly() || Player.Mana < WEQMana || !Menu.Item("HW1").GetValue<KeyBind>().Active)
                                         {
-                                            if (starget != null && Player.Position.Distance(starget.Position) <= Q.Range)
+                                            if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead)
                                             {
                                                 if (!starget.IsZombie)
                                                 {
@@ -556,17 +559,17 @@ namespace Sharpy_AIO.Plugins
                             {
                                 if (Player.HasBuff("zedwhandler"))
                                 {
-                                    if (starget != null && shadow.Position.Distance(starget.Position) <= 125f)
+                                    if (starget != null && starget.IsValidTarget(Player.AttackRange, true, shadow.Position) && !starget.IsDead)
                                     {
                                         if (!starget.IsZombie)
                                         {
                                             W.Cast();
-                                            Player.IssueOrder(GameObjectOrder.AttackTo, starget);
+                                            Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
                                         }
                                     }
                                     else
                                     {
-                                        var target = TargetSelector.GetTarget(Player.Position.Distance(shadow.Position) + 125f, TargetSelector.DamageType.Physical);
+                                        var target = TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical, true, null, shadow.Position);
                                         if (target != null)
                                         {
                                             W.Cast();
@@ -578,7 +581,7 @@ namespace Sharpy_AIO.Plugins
 
                             if (Menu.Item("HI").GetValue<bool>())
                             {
-                                if (starget != null && Player.Position.Distance(starget.Position) <= 550f)
+                                if (starget != null && starget.IsValidTarget(550f) && !starget.IsDead)
                                 {
                                     if (!starget.IsZombie)
                                     {
@@ -594,7 +597,7 @@ namespace Sharpy_AIO.Plugins
                                     }
                                 }
 
-                                if (starget != null && Player.Position.Distance(starget.Position) <= 350f)
+                                if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
                                 {
                                     if (!starget.IsZombie)
                                     {
@@ -647,8 +650,8 @@ namespace Sharpy_AIO.Plugins
                                 {
                                     if (Menu.Item("LCE").GetValue<bool>())
                                     {
-                                        var target = E.GetCircularFarmLocation(MinionManager.GetMinions(E.Range));
-                                        if (target.MinionsHit >= 1)
+                                        var target = MinionManager.GetMinions(E.Range).FirstOrDefault(x => x.IsValidTarget(E.Range));
+                                        if (target != null)
                                         {
                                             E.Cast();
                                         }
@@ -691,7 +694,7 @@ namespace Sharpy_AIO.Plugins
                             var starget = TargetSelector.GetSelectedTarget();
                             if (Menu.Item("CI").GetValue<bool>())
                             {
-                                if (starget != null && Player.Position.Distance(starget.Position) <= 1500f)
+                                if (starget != null && starget.IsValidTarget(1500f) && !starget.IsDead)
                                 {
                                     if (!starget.IsZombie)
                                     {
@@ -707,7 +710,7 @@ namespace Sharpy_AIO.Plugins
                                     }
                                 }
 
-                                if (starget != null && Player.Position.Distance(starget.Position) <= 550f)
+                                if (starget != null && starget.IsValidTarget(550f) && !starget.IsDead)
                                 {
                                     if (!starget.IsZombie)
                                     {
@@ -733,7 +736,7 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (E.IsReadyPerfectly())
                                             {
-                                                if (starget != null && Player.Position.Distance(starget.Position) <= E.Range || starget != null && shadow.Position.Distance(starget.Position) <= E.Range)
+                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(E.Range, true, shadow.Position) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
@@ -742,10 +745,15 @@ namespace Sharpy_AIO.Plugins
                                                 }
                                                 else
                                                 {
-                                                    var target = TargetSelector.GetTarget(E.Range + Player.Position.Distance(shadow.Position), E.DamageType);
-                                                    if (target != null)
+                                                    var shadowtarget = TargetSelector.GetTarget(E.Range, E.DamageType, true, null, shadow.Position);
+                                                    if (shadowtarget != null)
                                                     {
-                                                        if (Player.Position.Distance(target.Position) <= E.Range || shadow.Position.Distance(target.Position) <= E.Range)
+                                                        E.Cast();
+                                                    }
+                                                    else
+                                                    {
+                                                        var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                        if (target != null)
                                                         {
                                                             E.Cast();
                                                         }
@@ -758,18 +766,18 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (Q.IsReadyPerfectly())
                                             {
-                                                if (starget != null && Player.Position.Distance(starget.Position) <= Q.Range || starget != null && shadow.Position.Distance(starget.Position) <= Q.Range)
+                                                if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(Q.Range, true, shadow.Position))
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
-                                                        if (shadow.Position.Distance(starget.Position) <= Q.Range)
+                                                        if (starget.IsValidTarget(Q.Range,true,shadow.Position))
                                                         {
                                                             Q.UpdateSourcePosition(shadow.Position, shadow.Position);
                                                             Q.Cast(starget);
                                                         }
                                                         else
                                                         {
-                                                            if (Player.Position.Distance(starget.Position) <= Q.Range)
+                                                            if (starget.IsValidTarget(Q.Range))
                                                             {
                                                                 Q.UpdateSourcePosition(Player.Position, Player.Position);
                                                                 Q.Cast(starget);
@@ -779,21 +787,19 @@ namespace Sharpy_AIO.Plugins
                                                 }
                                                 else
                                                 {
-                                                    var target = TargetSelector.GetTarget(Q.Range + Player.Position.Distance(shadow.Position), Q.DamageType);
-                                                    if (target != null)
+                                                    var shadowtarget = TargetSelector.GetTarget(Q.Range, Q.DamageType, true, null, shadow.Position);
+                                                    if (shadowtarget != null)
                                                     {
-                                                        if (shadow.Position.Distance(target.Position) <= Q.Range)
+                                                        Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                                        Q.Cast(starget);
+                                                    }
+                                                    else
+                                                    {
+                                                        var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
+                                                        if (target != null)
                                                         {
-                                                            Q.UpdateSourcePosition(shadow.Position, shadow.Position);
-                                                            Q.Cast(target);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (Player.Position.Distance(target.Position) <= Q.Range)
-                                                            {
-                                                                Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                                Q.Cast(target);
-                                                            }
+                                                            Q.UpdateSourcePosition(Player.Position, Player.Position);
+                                                            Q.Cast(starget);
                                                         }
                                                     }
                                                 }
@@ -806,7 +812,7 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (Q.IsReadyPerfectly())
                                             {
-                                                if (starget != null && Player.Position.Distance(starget.Position) <= Q.Range)
+                                                if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
@@ -830,7 +836,7 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (E.IsReadyPerfectly())
                                             {
-                                                if (starget != null && Player.Position.Distance(starget.Position) <= E.Range)
+                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
@@ -851,7 +857,7 @@ namespace Sharpy_AIO.Plugins
 
                                     if (Menu.Item("CI").GetValue<bool>())
                                     {
-                                        if (starget != null && Player.Position.Distance(starget.Position) <= 350f)
+                                        if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
                                         {
                                             if (!starget.IsZombie)
                                             {
@@ -876,12 +882,12 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (E.IsReadyPerfectly())
                                             {
-                                                if (starget != null && Player.Position.Distance(starget.Position) <= E.Range)
+                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
                                                         E.Cast();
-                                                        Player.IssueOrder(GameObjectOrder.AttackTo, starget);
+                                                        Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
                                                     }
                                                 }
                                                 else
@@ -890,14 +896,14 @@ namespace Sharpy_AIO.Plugins
                                                     if (target != null)
                                                     {
                                                         E.Cast();
-                                                        Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                                                        Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                                                     }
                                                 }
                                             }
 
                                             if (W.IsReadyPerfectly())
                                             {
-                                                if (starget != null)
+                                                if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
@@ -922,7 +928,7 @@ namespace Sharpy_AIO.Plugins
                                             {
                                                 if (Q.IsReadyPerfectly())
                                                 {
-                                                    if (starget != null && Player.Position.Distance(starget.Position) <= Q.Range)
+                                                    if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead)
                                                     {
                                                         if (!starget.IsZombie)
                                                         {
@@ -943,7 +949,7 @@ namespace Sharpy_AIO.Plugins
 
                                                 if (Menu.Item("CI").GetValue<bool>())
                                                 {
-                                                    if (starget != null && Player.Position.Distance(starget.Position) <= 350f)
+                                                    if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
                                                     {
                                                         if (!starget.IsZombie)
                                                         {
@@ -990,7 +996,7 @@ namespace Sharpy_AIO.Plugins
                             {
                                 if (Q.IsReadyPerfectly())
                                 {
-                                    if (starget != null && Player.Position.Distance(starget.Position) <= W.Range + Q.Range)
+                                    if (starget != null && starget.IsValidTarget(Q.Range + W.Range) && !starget.IsDead)
                                     {
                                         if (!starget.IsZombie)
                                         {
@@ -1021,7 +1027,7 @@ namespace Sharpy_AIO.Plugins
                         {
                             if (shadow != null)
                             {
-                                if (starget != null && shadow.Position.Distance(starget.Position) <= Q.Range)
+                                if (starget != null && starget.IsValidTarget(Q.Range, true, shadow.Position) && !starget.IsDead)
                                 {
                                     if (!starget.IsZombie)
                                     {
@@ -1031,14 +1037,11 @@ namespace Sharpy_AIO.Plugins
                                 }
                                 else
                                 {
-                                    var target = TargetSelector.GetTarget(Q.Range + Player.Position.Distance(shadow.Position), Q.DamageType);
+                                    var target = TargetSelector.GetTarget(Q.Range, Q.DamageType, true, null, shadow.Position);
                                     if (target != null)
                                     {
-                                        if (shadow.Position.Distance(target.Position) <= Q.Range)
-                                        {
-                                            Q.UpdateSourcePosition(shadow.Position, shadow.Position);
-                                            Q.Cast(target);
-                                        }
+                                        Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                        Q.Cast(target);
                                     }
                                 }
                             }
@@ -1053,7 +1056,7 @@ namespace Sharpy_AIO.Plugins
                         if (shadow != null)
                         {
                             var starget = TargetSelector.GetSelectedTarget();
-                            if (starget != null && shadow.Position.Distance(starget.Position) <= E.Range)
+                            if (starget != null && starget.IsValidTarget(E.Range, true, shadow.Position))
                             {
                                 if (!starget.IsZombie)
                                 {
@@ -1062,13 +1065,10 @@ namespace Sharpy_AIO.Plugins
                             }
                             else
                             {
-                                var target = TargetSelector.GetTarget(E.Range + Player.Position.Distance(shadow.Position), E.DamageType);
+                                var target = TargetSelector.GetTarget(E.Range, E.DamageType, true, null, shadow.Position);
                                 if (target != null)
                                 {
-                                    if (shadow.Position.Distance(target.Position) <= E.Range)
-                                    {
-                                        E.Cast();
-                                    }
+                                    E.Cast();
                                 }
                             }
                         }
@@ -1206,6 +1206,11 @@ namespace Sharpy_AIO.Plugins
             if (ItemData.Ravenous_Hydra_Melee_Only.GetItem().IsReady())
             {
                 damage += (float)Player.GetItemDamage(enemy, Damage.DamageItems.Hydra);
+            }
+
+            if (!Player.IsWindingUp)
+            {
+                damage += (float)Player.GetAutoAttackDamage(enemy);
             }
 
             if (Q.IsReadyPerfectly())

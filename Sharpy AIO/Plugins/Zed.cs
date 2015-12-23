@@ -18,7 +18,6 @@ namespace Sharpy_AIO.Plugins
         private Orbwalking.Orbwalker Orbwalker;
         private Obj_AI_Hero Player = ObjectManager.Player;
         private Spell Q, W, E, R;
-        private Vector3 rshadowpos;
         private SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("summonerDot");
         private int LastSwitch;
         private Obj_AI_Minion shadow

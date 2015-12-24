@@ -87,6 +87,7 @@ namespace Sharpy_AIO.Plugins
             drawing.AddItem(new MenuItem("DQ", "Draw Q Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DW", "Draw W Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DH", "Draw HP Percent").SetValue(true));
+            drawing.AddItem(new MenuItem("DO", "Disable All Drawings").SetValue(false));
             Menu.AddSubMenu(drawing);
 
             Menu.AddToMainMenu();
@@ -102,25 +103,28 @@ namespace Sharpy_AIO.Plugins
 
         private void Drawing_OnDraw(EventArgs args)
         {
-            var DQ = Menu.Item("DQ").GetValue<Circle>();
-            if (DQ.Active)
+            if (!Menu.Item("DO").GetValue<bool>())
             {
-                if (Q.IsReadyPerfectly())
+                var DQ = Menu.Item("DQ").GetValue<Circle>();
+                if (DQ.Active)
                 {
-                    Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
+                    if (Q.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
+                    }
                 }
-            }
 
-            var DW = Menu.Item("DW").GetValue<Circle>();
-            if (DW.Active)
-            {
-                Render.Circle.DrawCircle(Player.Position, W.Range, DW.Color, 3);
-            }
+                var DW = Menu.Item("DW").GetValue<Circle>();
+                if (DW.Active)
+                {
+                    Render.Circle.DrawCircle(Player.Position, W.Range, DW.Color, 3);
+                }
 
-            if (Menu.Item("DH").GetValue<bool>())
-            {
-                var position = Drawing.WorldToScreen(ObjectManager.Player.Position);
-                Drawing.DrawText(position.X, position.Y + 40, Color.White, "HP Percent :" + Player.HealthPercent);
+                if (Menu.Item("DH").GetValue<bool>())
+                {
+                    var position = Drawing.WorldToScreen(ObjectManager.Player.Position);
+                    Drawing.DrawText(position.X, position.Y + 40, Color.White, "HP Percent :" + Player.HealthPercent);
+                }
             }
         }
 

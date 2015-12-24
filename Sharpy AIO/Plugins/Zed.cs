@@ -170,6 +170,7 @@ namespace Sharpy_AIO.Plugins
             drawing.AddItem(new MenuItem("DR", "Draw R Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DWQ", "Draw WQ Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DS", "Draw Combo Mode").SetValue(true));
+            drawing.AddItem(new MenuItem("DO", "Disable All Drawings").SetValue(false));
             Menu.AddSubMenu(drawing);
 
             // 그림자 드로잉 메뉴
@@ -190,90 +191,93 @@ namespace Sharpy_AIO.Plugins
 
         private void Drawing_OnDraw(EventArgs args)
         {
-            var DQ = Menu.Item("DQ").GetValue<Circle>();
-            if (DQ.Active)
+            if (!Menu.Item("DO").GetValue<bool>())
             {
-                if (Q.IsReadyPerfectly())
-                {
-                    Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
-                }
-            }
-
-            var DW = Menu.Item("DW").GetValue<Circle>();
-            if (DW.Active)
-            {
-                if (W.IsReadyPerfectly())
-                {
-                    Render.Circle.DrawCircle(Player.Position, W.Range, DW.Color, 3);
-                }
-            }
-
-            var DE = Menu.Item("DE").GetValue<Circle>();
-            if (DE.Active)
-            {
-                if (E.IsReadyPerfectly())
-                {
-                    Render.Circle.DrawCircle(Player.Position, E.Range, DE.Color, 3);
-                }
-            }
-
-            var DR = Menu.Item("DR").GetValue<Circle>();
-            if (DR.Active)
-            {
-                if (R.IsReadyPerfectly())
-                {
-                    if (R.IsReadyPerfectly())
-                    {
-                        Render.Circle.DrawCircle(Player.Position, R.Range, DR.Color, 3);
-                    }
-                }
-            }
-
-            var DWQ = Menu.Item("DWQ").GetValue<Circle>();
-            if (DWQ.Active)
-            {
-                if (Q.IsReadyPerfectly() && W.IsReadyPerfectly())
-                {
-                    Render.Circle.DrawCircle(Player.Position, Q.Range + W.Range, DWQ.Color, 3);
-                }
-            }
-
-            var WQ = Menu.Item("WQ").GetValue<Circle>();
-            if (WQ.Active)
-            {
-                if (shadow != null)
+                var DQ = Menu.Item("DQ").GetValue<Circle>();
+                if (DQ.Active)
                 {
                     if (Q.IsReadyPerfectly())
                     {
-                        Render.Circle.DrawCircle(shadow.Position, Q.Range, WQ.Color, 3);
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
                     }
                 }
-            }
 
-            var WE = Menu.Item("WE").GetValue<Circle>();
-            if (WE.Active)
-            {
-                if (shadow != null)
+                var DW = Menu.Item("DW").GetValue<Circle>();
+                if (DW.Active)
+                {
+                    if (W.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, W.Range, DW.Color, 3);
+                    }
+                }
+
+                var DE = Menu.Item("DE").GetValue<Circle>();
+                if (DE.Active)
                 {
                     if (E.IsReadyPerfectly())
                     {
-                        Render.Circle.DrawCircle(shadow.Position, E.Range, WE.Color, 3);
+                        Render.Circle.DrawCircle(Player.Position, E.Range, DE.Color, 3);
                     }
                 }
-            }
 
-            if (Menu.Item("DS").GetValue<bool>())
-            {
-                var position = Drawing.WorldToScreen(ObjectManager.Player.Position);
-                switch (Menu.Item("CM").GetValue<StringList>().SelectedIndex)
+                var DR = Menu.Item("DR").GetValue<Circle>();
+                if (DR.Active)
                 {
-                    case 0:
-                        Drawing.DrawText(position.X, position.Y + 40, Color.White,"Combo Mode : Normal");
-                        break;
+                    if (R.IsReadyPerfectly())
+                    {
+                        if (R.IsReadyPerfectly())
+                        {
+                            Render.Circle.DrawCircle(Player.Position, R.Range, DR.Color, 3);
+                        }
+                    }
+                }
 
-                    case 1:
-                        Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Line");
-                        break; 
+                var DWQ = Menu.Item("DWQ").GetValue<Circle>();
+                if (DWQ.Active)
+                {
+                    if (Q.IsReadyPerfectly() && W.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, Q.Range + W.Range, DWQ.Color, 3);
+                    }
+                }
+
+                var WQ = Menu.Item("WQ").GetValue<Circle>();
+                if (WQ.Active)
+                {
+                    if (shadow != null)
+                    {
+                        if (Q.IsReadyPerfectly())
+                        {
+                            Render.Circle.DrawCircle(shadow.Position, Q.Range, WQ.Color, 3);
+                        }
+                    }
+                }
+
+                var WE = Menu.Item("WE").GetValue<Circle>();
+                if (WE.Active)
+                {
+                    if (shadow != null)
+                    {
+                        if (E.IsReadyPerfectly())
+                        {
+                            Render.Circle.DrawCircle(shadow.Position, E.Range, WE.Color, 3);
+                        }
+                    }
+                }
+
+                if (Menu.Item("DS").GetValue<bool>())
+                {
+                    var position = Drawing.WorldToScreen(ObjectManager.Player.Position);
+                    switch (Menu.Item("CM").GetValue<StringList>().SelectedIndex)
+                    {
+                        case 0:
+                            Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Normal");
+                            break;
+
+                        case 1:
+                            Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Line");
+                            break;
+                    }
                 }
             }
         }

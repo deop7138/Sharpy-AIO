@@ -99,6 +99,7 @@ namespace Sharpy_AIO.Plugins
             drawing.AddItem(new MenuItem("DQ", "Draw Q Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DE", "Draw E Range").SetValue(new Circle(true, Color.Green)));
             drawing.AddItem(new MenuItem("DR", "Draw R Range").SetValue(new Circle(true, Color.Green)));
+            drawing.AddItem(new MenuItem("DO", "Disable All Drawings").SetValue(false));
             Menu.AddSubMenu(drawing);
 
             Menu.AddToMainMenu();
@@ -117,30 +118,33 @@ namespace Sharpy_AIO.Plugins
 
         private void Drawing_OnDraw(EventArgs args)
         {
-            var DQ = Menu.Item("DQ").GetValue<Circle>();
-            if (DQ.Active)
+            if (!Menu.Item("DO").GetValue<bool>())
             {
-                if (Q.IsReadyPerfectly())
+                var DQ = Menu.Item("DQ").GetValue<Circle>();
+                if (DQ.Active)
                 {
-                    Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
+                    if (Q.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, DQ.Color, 3);
+                    }
                 }
-            }
 
-            var DE = Menu.Item("DE").GetValue<Circle>();
-            if (DE.Active)
-            {
-                if (E.IsReadyPerfectly())
+                var DE = Menu.Item("DE").GetValue<Circle>();
+                if (DE.Active)
                 {
-                    Render.Circle.DrawCircle(Player.Position, E.Range, DE.Color, 3);
+                    if (E.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, E.Range, DE.Color, 3);
+                    }
                 }
-            }
 
-            var DR = Menu.Item("DR").GetValue<Circle>();
-            if (DR.Active)
-            {
-                if (R.IsReadyPerfectly())
+                var DR = Menu.Item("DR").GetValue<Circle>();
+                if (DR.Active)
                 {
-                    Render.Circle.DrawCircle(Player.Position, R.Range, DR.Color, 3);
+                    if (R.IsReadyPerfectly())
+                    {
+                        Render.Circle.DrawCircle(Player.Position, R.Range, DR.Color, 3);
+                    }
                 }
             }
         }

@@ -96,7 +96,9 @@ namespace Sharpy_AIO.Plugins
             combo.AddItem(new MenuItem("CW", "Use W (Line Combo Only)").SetValue(true));
             combo.AddItem(new MenuItem("CE", "Use E").SetValue(true));
             combo.AddItem(new MenuItem("CI", "Use Item").SetValue(true));
-            combo.AddItem(new MenuItem("CM", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line" }, 0)));
+            combo.AddItem(new MenuItem("CM", "Combo Mode").SetValue(new KeyBind('L', KeyBindType.Toggle, true)));
+            combo.AddItem(new MenuItem("C", "On : Normal / Off : Line"));
+           // combo.AddItem(new MenuItem("CM", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line" }, 0)));
             Menu.AddSubMenu(combo);
 
             // 궁극기 메뉴
@@ -179,14 +181,37 @@ namespace Sharpy_AIO.Plugins
             sd.AddItem(new MenuItem("WE", "Shadow E Range").SetValue(new Circle(true, Color.WhiteSmoke)));
             drawing.AddSubMenu(sd);
 
+            // 데미지 인디케이터 메뉴
+            var da = new Menu("Damage Indicator", "Damage Indicator");
+            da.AddItem(new MenuItem("DIA", "Use Damage Indicator").SetValue(true));
+            da.AddItem(new MenuItem("DIF", "Damage Indicator Fill Color").SetValue(new Circle(true, Color.Goldenrod)));
+            Menu.AddSubMenu(da);
+
             Menu.AddToMainMenu();
 
             new DamageIndicator();
             DamageIndicator.DamageToUnit = getcombodamage;
+            DamageIndicator.Enabled = Menu.Item("DIA").GetValue<bool>();
+            DamageIndicator.Fill = Menu.Item("DIF").GetValue<Circle>().Active;
+            DamageIndicator.FillColor = Menu.Item("DIF").GetValue<Circle>().Color;
+
+            Menu.Item("DIA").ValueChanged += Zed_ValueChanged;
+            Menu.Item("DIF").ValueChanged += Zed_ValueChanged1;
 
             Game.OnUpdate += Game_OnUpdate;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        private void Zed_ValueChanged1(object sender, OnValueChangeEventArgs e)
+        {
+            DamageIndicator.Fill = e.GetNewValue<Circle>().Active;
+            DamageIndicator.FillColor = e.GetNewValue<Circle>().Color;
+        }
+
+        private void Zed_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            DamageIndicator.Enabled = e.GetNewValue<bool>();
         }
 
         private void Drawing_OnDraw(EventArgs args)
@@ -268,7 +293,15 @@ namespace Sharpy_AIO.Plugins
                 if (Menu.Item("DS").GetValue<bool>())
                 {
                     var position = Drawing.WorldToScreen(ObjectManager.Player.Position);
-                    switch (Menu.Item("CM").GetValue<StringList>().SelectedIndex)
+                    if (Menu.Item("CM").GetValue<KeyBind>().Active)
+                    {
+                        Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Normal");
+                    }
+                    else
+                    {
+                        Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Line");
+                    }
+                   /* switch (Menu.Item("CM").GetValue<StringList>().SelectedIndex)
                     {
                         case 0:
                             Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Normal");
@@ -277,7 +310,7 @@ namespace Sharpy_AIO.Plugins
                         case 1:
                             Drawing.DrawText(position.X, position.Y + 40, Color.White, "Combo Mode : Line");
                             break;
-                    }
+                    }*/
                 }
             }
         }
@@ -731,76 +764,56 @@ namespace Sharpy_AIO.Plugins
                                 }
                             }
 
-                            switch (Menu.Item("CM").GetValue<StringList>().SelectedIndex)
+                            if (Menu.Item("CM").GetValue<KeyBind>().Active)
                             {
-                                case 0:
-                                    if (shadow != null)
+                                if (shadow != null)
+                                {
+                                    if (Menu.Item("CE").GetValue<bool>())
                                     {
-                                        if (Menu.Item("CE").GetValue<bool>())
+                                        if (E.IsReadyPerfectly())
                                         {
-                                            if (E.IsReadyPerfectly())
+                                            if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(E.Range, true, shadow.Position) && !starget.IsDead)
                                             {
-                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(E.Range, true, shadow.Position) && !starget.IsDead)
+                                                if (!starget.IsZombie)
                                                 {
-                                                    if (!starget.IsZombie)
-                                                    {
-                                                        E.Cast();
-                                                    }
+                                                    E.Cast();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var shadowtarget = TargetSelector.GetTarget(E.Range, E.DamageType, true, null, shadow.Position);
+                                                if (shadowtarget != null)
+                                                {
+                                                    E.Cast();
                                                 }
                                                 else
                                                 {
-                                                    var shadowtarget = TargetSelector.GetTarget(E.Range, E.DamageType, true, null, shadow.Position);
-                                                    if (shadowtarget != null)
+                                                    var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                    if (target != null)
                                                     {
                                                         E.Cast();
-                                                    }
-                                                    else
-                                                    {
-                                                        var target = TargetSelector.GetTarget(E.Range, E.DamageType);
-                                                        if (target != null)
-                                                        {
-                                                            E.Cast();
-                                                        }
                                                     }
                                                 }
                                             }
                                         }
+                                    }
 
-                                        if (Menu.Item("CQ").GetValue<bool>())
+                                    if (Menu.Item("CQ").GetValue<bool>())
+                                    {
+                                        if (Q.IsReadyPerfectly())
                                         {
-                                            if (Q.IsReadyPerfectly())
+                                            if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(Q.Range, true, shadow.Position))
                                             {
-                                                if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead || starget != null && starget.IsValidTarget(Q.Range, true, shadow.Position))
+                                                if (!starget.IsZombie)
                                                 {
-                                                    if (!starget.IsZombie)
-                                                    {
-                                                        if (starget.IsValidTarget(Q.Range,true,shadow.Position))
-                                                        {
-                                                            Q.UpdateSourcePosition(shadow.Position, shadow.Position);
-                                                            Q.Cast(starget);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (starget.IsValidTarget(Q.Range))
-                                                            {
-                                                                Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                                Q.Cast(starget);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    var shadowtarget = TargetSelector.GetTarget(Q.Range, Q.DamageType, true, null, shadow.Position);
-                                                    if (shadowtarget != null)
+                                                    if (starget.IsValidTarget(Q.Range, true, shadow.Position))
                                                     {
                                                         Q.UpdateSourcePosition(shadow.Position, shadow.Position);
                                                         Q.Cast(starget);
                                                     }
                                                     else
                                                     {
-                                                        var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
-                                                        if (target != null)
+                                                        if (starget.IsValidTarget(Q.Range))
                                                         {
                                                             Q.UpdateSourcePosition(Player.Position, Player.Position);
                                                             Q.Cast(starget);
@@ -808,11 +821,146 @@ namespace Sharpy_AIO.Plugins
                                                     }
                                                 }
                                             }
+                                            else
+                                            {
+                                                var shadowtarget = TargetSelector.GetTarget(Q.Range, Q.DamageType, true, null, shadow.Position);
+                                                if (shadowtarget != null)
+                                                {
+                                                    Q.UpdateSourcePosition(shadow.Position, shadow.Position);
+                                                    Q.Cast(starget);
+                                                }
+                                                else
+                                                {
+                                                    var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
+                                                    if (target != null)
+                                                    {
+                                                        Q.UpdateSourcePosition(Player.Position, Player.Position);
+                                                        Q.Cast(starget);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Menu.Item("CQ").GetValue<bool>())
+                                    {
+                                        if (Q.IsReadyPerfectly())
+                                        {
+                                            if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead)
+                                            {
+                                                if (!starget.IsZombie)
+                                                {
+                                                    Q.UpdateSourcePosition(Player.Position, Player.Position);
+                                                    Q.Cast(starget);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
+                                                if (target != null)
+                                                {
+                                                    Q.UpdateSourcePosition(Player.Position, Player.Position);
+                                                    Q.Cast(target);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (Menu.Item("CE").GetValue<bool>())
+                                    {
+                                        if (E.IsReadyPerfectly())
+                                        {
+                                            if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
+                                            {
+                                                if (!starget.IsZombie)
+                                                {
+                                                    E.Cast();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                if (target != null)
+                                                {
+                                                    E.Cast();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (Menu.Item("CI").GetValue<bool>())
+                                {
+                                    if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
+                                    {
+                                        if (!starget.IsZombie)
+                                        {
+                                            castHydra();
                                         }
                                     }
                                     else
                                     {
-                                        if (Menu.Item("CQ").GetValue<bool>())
+                                        var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
+                                        if (target != null)
+                                        {
+                                            castHydra();
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (rReady == rCheck.Second)
+                                {
+                                    if (wReady == wCheck.First)
+                                    {
+                                        if (E.IsReadyPerfectly())
+                                        {
+                                            if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
+                                            {
+                                                if (!starget.IsZombie)
+                                                {
+                                                    E.Cast();
+                                                    Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                if (target != null)
+                                                {
+                                                    E.Cast();
+                                                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                                                }
+                                            }
+                                        }
+
+                                        if (W.IsReadyPerfectly())
+                                        {
+                                            if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
+                                            {
+                                                if (!starget.IsZombie)
+                                                {
+                                                    var spos = starget.Position.Extend(Player.Position, -650f);
+                                                    W.Cast(spos);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+                                                if (target != null)
+                                                {
+                                                    var wpos = target.Position.Extend(Player.Position, -650f);
+                                                    W.Cast(wpos);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (wReady == wCheck.Second)
                                         {
                                             if (Q.IsReadyPerfectly())
                                             {
@@ -834,154 +982,37 @@ namespace Sharpy_AIO.Plugins
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        if (Menu.Item("CE").GetValue<bool>())
-                                        {
-                                            if (E.IsReadyPerfectly())
+                                            if (Menu.Item("CI").GetValue<bool>())
                                             {
-                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
+                                                if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
                                                 {
                                                     if (!starget.IsZombie)
                                                     {
-                                                        E.Cast();
+                                                        castHydra();
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    var target = TargetSelector.GetTarget(E.Range, E.DamageType);
+                                                    var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
                                                     if (target != null)
                                                     {
-                                                        E.Cast();
+                                                        castHydra();
                                                     }
+                                                }
+                                            }
+
+                                            if (!Q.IsReadyPerfectly())
+                                            {
+                                                if (Utils.GameTimeTickCount - LastSwitch >= 350)
+                                                {
+                                                    Menu.Item("CM").SetValue(new KeyBind(Menu.Item("CM").GetValue<KeyBind>().Key, KeyBindType.Toggle, true));
+                                                    LastSwitch = Utils.GameTimeTickCount;
                                                 }
                                             }
                                         }
                                     }
-
-                                    if (Menu.Item("CI").GetValue<bool>())
-                                    {
-                                        if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
-                                        {
-                                            if (!starget.IsZombie)
-                                            {
-                                                castHydra();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
-                                            if (target != null)
-                                            {
-                                                castHydra();
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 1:
-                                    if (rReady == rCheck.Second)
-                                    {
-                                        if (wReady == wCheck.First)
-                                        {
-                                            if (E.IsReadyPerfectly())
-                                            {
-                                                if (starget != null && starget.IsValidTarget(E.Range) && !starget.IsDead)
-                                                {
-                                                    if (!starget.IsZombie)
-                                                    {
-                                                        E.Cast();
-                                                        Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    var target = TargetSelector.GetTarget(E.Range, E.DamageType);
-                                                    if (target != null)
-                                                    {
-                                                        E.Cast();
-                                                        Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                                                    }
-                                                }
-                                            }
-
-                                            if (W.IsReadyPerfectly())
-                                            {
-                                                if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
-                                                {
-                                                    if (!starget.IsZombie)
-                                                    {
-                                                        var spos = starget.Position.Extend(Player.Position, -650f);
-                                                        W.Cast(spos);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
-                                                    if (target != null)
-                                                    {
-                                                        var wpos = target.Position.Extend(Player.Position, -650f);
-                                                        W.Cast(wpos);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (wReady == wCheck.Second)
-                                            {
-                                                if (Q.IsReadyPerfectly())
-                                                {
-                                                    if (starget != null && starget.IsValidTarget(Q.Range) && !starget.IsDead)
-                                                    {
-                                                        if (!starget.IsZombie)
-                                                        {
-                                                            Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                            Q.Cast(starget);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        var target = TargetSelector.GetTarget(Q.Range, Q.DamageType);
-                                                        if (target != null)
-                                                        {
-                                                            Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                            Q.Cast(target);
-                                                        }
-                                                    }
-                                                }
-
-                                                if (Menu.Item("CI").GetValue<bool>())
-                                                {
-                                                    if (starget != null && starget.IsValidTarget(350f) && !starget.IsDead)
-                                                    {
-                                                        if (!starget.IsZombie)
-                                                        {
-                                                            castHydra();
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        var target = TargetSelector.GetTarget(350f, TargetSelector.DamageType.Physical);
-                                                        if (target != null)
-                                                        {
-                                                            castHydra();
-                                                        }
-                                                    }
-                                                }
-
-                                                if (!Q.IsReadyPerfectly())
-                                                {
-                                                    if (Utils.GameTimeTickCount - LastSwitch >= 350)
-                                                    {
-                                                        Menu.Item("CM").SetValue(new StringList(new[] { "Normal", "Line" }, 0));
-                                                        LastSwitch = Utils.GameTimeTickCount;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
+                                }
                             }
                         }
                         break;

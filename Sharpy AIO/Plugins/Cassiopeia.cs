@@ -120,16 +120,39 @@ namespace Sharpy_AIO.Plugins
             drawing.AddItem(new MenuItem("DO", "Disable All Drawings").SetValue(false));
             Menu.AddSubMenu(drawing);
 
+            // 데미지 인디케이터 메뉴
+            var da = new Menu("Damage Indicator", "Damage Indicator");
+            da.AddItem(new MenuItem("DIA", "Use Damage Indicator").SetValue(true));
+            da.AddItem(new MenuItem("DIF", "Damage Indicator Fill Color").SetValue(new Circle(true, Color.Goldenrod)));
+            Menu.AddSubMenu(da);
+
             Menu.AddToMainMenu();
 
             new DamageIndicator();
             DamageIndicator.DamageToUnit = getcombodamage;
+            DamageIndicator.Enabled = Menu.Item("DIA").GetValue<bool>();
+            DamageIndicator.Fill = Menu.Item("DIF").GetValue<Circle>().Active;
+            DamageIndicator.FillColor = Menu.Item("DIF").GetValue<Circle>().Color;
+
+            Menu.Item("DIA").ValueChanged += Cassiopeia_ValueChanged;
+            Menu.Item("DIF").ValueChanged += Cassiopeia_ValueChanged1;
 
             Game.OnUpdate += Game_OnUpdate;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        private void Cassiopeia_ValueChanged1(object sender, OnValueChangeEventArgs e)
+        {
+            DamageIndicator.Fill = e.GetNewValue<Circle>().Active;
+            DamageIndicator.FillColor = e.GetNewValue<Circle>().Color;
+        }
+
+        private void Cassiopeia_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            DamageIndicator.Enabled = e.GetNewValue<bool>();
         }
 
         private void Drawing_OnDraw(EventArgs args)

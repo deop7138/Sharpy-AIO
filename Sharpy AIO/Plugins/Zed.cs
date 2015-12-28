@@ -521,7 +521,7 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                if (starget.IsValidTarget(Q.Range,true,shadow.Position))
+                                                if (starget.IsValidTarget(Q.Range, true, shadow.Position)) 
                                                 {
                                                     Q.UpdateSourcePosition(shadow.Position, shadow.Position);
                                                     Q.Cast(starget);
@@ -652,7 +652,7 @@ namespace Sharpy_AIO.Plugins
                                         var target = MinionManager.GetMinions(Q.Range).FirstOrDefault(x => x.IsValidTarget(Q.Range));
                                         if (target != null)
                                         {
-                                            Q.UpdateSourcePosition(Player.Position);
+                                            Q.UpdateSourcePosition(Player.Position, Player.Position);
                                             Q.Cast(target);
                                         }
                                     }
@@ -663,7 +663,7 @@ namespace Sharpy_AIO.Plugins
                                             .FirstOrDefault(x => x.IsValidTarget(Q.Range));
                                         if (target != null)
                                         {
-                                            Q.UpdateSourcePosition(Player.Position);
+                                            Q.UpdateSourcePosition(Player.Position, Player.Position);
                                             Q.Cast(target);
                                         }
                                     }
@@ -816,7 +816,7 @@ namespace Sharpy_AIO.Plugins
                                                 if (shadowtarget != null)
                                                 {
                                                     Q.UpdateSourcePosition(shadow.Position, shadow.Position);
-                                                    Q.Cast(starget);
+                                                    Q.Cast(shadowtarget);
                                                 }
                                                 else
                                                 {
@@ -824,7 +824,7 @@ namespace Sharpy_AIO.Plugins
                                                     if (target != null)
                                                     {
                                                         Q.UpdateSourcePosition(Player.Position, Player.Position);
-                                                        Q.Cast(starget);
+                                                        Q.Cast(target);
                                                     }
                                                 }
                                             }

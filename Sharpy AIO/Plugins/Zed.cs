@@ -588,21 +588,24 @@ namespace Sharpy_AIO.Plugins
                             {
                                 if (Player.HasBuff("zedwhandler"))
                                 {
-                                    if (starget != null && starget.IsValidTarget(Player.AttackRange, true, shadow.Position) && !starget.IsDead)
+                                    if (W.IsReadyPerfectly() && wReady == wCheck.Second)
                                     {
-                                        if (!starget.IsZombie)
+                                        if (starget != null && starget.IsValidTarget(Player.AttackRange, true, shadow.Position) && !starget.IsDead)
                                         {
-                                            W.Cast();
-                                            Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
+                                            if (!starget.IsZombie)
+                                            {
+                                                W.Cast();
+                                                Player.IssueOrder(GameObjectOrder.AttackUnit, starget);
+                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                        var target = TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical, true, null, shadow.Position);
-                                        if (target != null)
+                                        else
                                         {
-                                            W.Cast();
-                                            Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                                            var target = TargetSelector.GetTarget(Player.AttackRange, TargetSelector.DamageType.Physical, true, null, shadow.Position);
+                                            if (target != null)
+                                            {
+                                                W.Cast();
+                                                Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                                            }
                                         }
                                     }
                                 }

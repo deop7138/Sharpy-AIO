@@ -434,23 +434,26 @@ namespace Sharpy_AIO.Plugins
                             var WEQMana = W.ManaCost + E.ManaCost + Q.ManaCost;
                             if (Menu.Item("HW1").GetValue<KeyBind>().Active)
                             {
-                                if (W.IsReadyPerfectly() && wReady == wCheck.First)
+                                if (shadow == null)
                                 {
-                                    if (Player.Mana >= WEQMana)
+                                    if (W.IsReadyPerfectly() && wReady == wCheck.First)
                                     {
-                                        if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
+                                        if (Player.Mana >= WEQMana)
                                         {
-                                            if (!starget.IsZombie)
+                                            if (starget != null && starget.IsValidTarget(W.Range) && !starget.IsDead)
                                             {
-                                                W.Cast(starget);
+                                                if (!starget.IsZombie)
+                                                {
+                                                    W.Cast(starget);
+                                                }
                                             }
-                                        }
-                                        else
-                                        {
-                                            var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
-                                            if (target != null)
+                                            else
                                             {
-                                                W.Cast(target);
+                                                var target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+                                                if (target != null)
+                                                {
+                                                    W.Cast(target);
+                                                }
                                             }
                                         }
                                     }

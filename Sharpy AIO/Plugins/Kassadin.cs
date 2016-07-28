@@ -236,7 +236,8 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!starget.IsZombie)
                                         {
-                                            W.Cast();
+                                            if (!starget.IsDead)
+                                                W.Cast();
                                         }
                                     }
                                     else
@@ -261,7 +262,8 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!starget.IsZombie)
                                         {
-                                            W.Cast();
+                                            if (!starget.IsDead)
+                                                W.Cast();
                                         }
                                     }
                                     else
@@ -345,7 +347,8 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                Q.CastOnUnit(starget);
+                                                if (!starget.IsDead)
+                                                    Q.CastOnUnit(starget);
                                             }
                                         }
                                         else
@@ -367,7 +370,8 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                E.Cast(starget);
+                                                if (!starget.IsDead)
+                                                    E.Cast(starget);
                                             }
                                         }
                                         else
@@ -392,7 +396,8 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                W.Cast();
+                                                if (!starget.IsDead)
+                                                    W.Cast();
                                             }
                                         }
                                         else
@@ -477,8 +482,11 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                var rpos = starget.Position.Extend(Player.Position, -(Player.Position.Distance(starget.Position)) +(Menu.Item("CRR").GetValue<Slider>().Value));
-                                                R.Cast(rpos);
+                                                if (!starget.IsDead)
+                                                {
+                                                    var rpos = starget.Position.Extend(Player.Position, -(Player.Position.Distance(starget.Position)) + (Menu.Item("CRR").GetValue<Slider>().Value));
+                                                    R.Cast(rpos);
+                                                }
                                             }
                                         }
                                         else
@@ -502,7 +510,8 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!starget.IsZombie)
                                         {
-                                            Q.CastOnUnit(starget);
+                                            if (!starget.IsDead)
+                                                Q.CastOnUnit(starget);
                                         }
                                     }
                                     else
@@ -524,7 +533,8 @@ namespace Sharpy_AIO.Plugins
                                     {
                                         if (!starget.IsZombie)
                                         {
-                                            E.Cast(starget);
+                                            if (!starget.IsDead)
+                                                E.Cast(starget);
                                         }
                                     }
                                     else
@@ -548,7 +558,8 @@ namespace Sharpy_AIO.Plugins
                                         {
                                             if (!starget.IsZombie)
                                             {
-                                                W.Cast();
+                                                if (!starget.IsDead)
+                                                    W.Cast();
                                             }
                                         }
                                         else
